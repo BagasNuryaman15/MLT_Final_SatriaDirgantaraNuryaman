@@ -189,12 +189,12 @@ Dari analisis univariat yang telah dilakukan, ditemukan insight penting:
 ```
 🎭 POPULARITAS GENRE         📺 PREFERENSI FORMAT         ⭐ DISTRIBUSI RATING
 ┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
-│ 1. Comedy    (1.844)│      │ Serial TV     30,8% │      │ Rata-rata     6,47  │
-│ 2. Action    (1.590)│      │ OVA          30,0%  │      │ Median        6,57  │
-│ 3. Adventure (1.356)│      │ Film         26,0%  │      │ Modus         8,00  │
-│ 4. Drama     (1.322)│      │ Special       5,8%  │      │ Std Dev       1,18  │
-│ 5. Fantasy   (1.218)│      │ TV Special    4,2%  │      │ Rentang    1,67-10  │
-└─────────────────────┘      └─────────────────────┘      └─────────────────────┘
+│ 1. Comedy    (4.645)│      │ Serial TV     30,8% │      │ Rata-rata     6,47  │
+│ 2. Action    (2.949)│      │ OVA          27,0%  │      │ Median        6,57  │
+│ 3. Adventure (2.348)│      │ Movie        20,1%  │      │ Modus         8,00  │
+│ 4. Fantasy   (2.309)│      │ Special      11,4%  │      │ Std Dev       1,18  │
+│ 5. Sci-Fi    (2.070)│      │ ONA           4,5%  │      │ Rentang    1,67-10  │
+└─────────────────────┘      └─────────────────────┘      └─────────────────────┘└─────────────────────┘
 ```
 
 </div>
@@ -206,7 +206,7 @@ Dari analisis univariat yang telah dilakukan, ditemukan insight penting:
 - 👥 **Perilaku Pengguna**: Rating pengguna menunjukkan **bias positif** dengan rating **8/10** paling sering diberikan (21,8%).
 
 #### 🔄 **Analisis Multivariat Fase 1: Insight Sistem Rekomendasi Berbasis Konten**
-![Multivariate Phase 1](img/multivariate_phase1.png)
+![Multivariate Phase 1](img/multivariate_analysis_phase1.png)
 
 Analisis hubungan antar variabel konten mengungkap:
 
@@ -228,7 +228,7 @@ Analisis hubungan antar variabel konten mengungkap:
 
 #### 🤝 **Analisis Multivariat Fase 2: Insight Sistem Rekomendasi Kolaboratif**
 
-![Multivariate Phase 2](img/multivariate_phase2.png)
+![Multivariate Phase 2](img/multivariate_analysis_phase2.png)
 
 Analisis perilaku pengguna dan interaksi kolaboratif mengungkap:
 
@@ -237,18 +237,41 @@ Analisis perilaku pengguna dan interaksi kolaboratif mengungkap:
 | **Metrik Perilaku Pengguna** | **Nilai** | **Pola Distribusi** | **Dampak Rekomendasi** |
 |:---:|:---:|:---:|:---:|
 | 🔗 **Konsistensi Pengguna-Kualitas** | Korelasi 0,411 | Kesepakatan kuat dengan rating resmi | Reliabilitas tinggi |
-| 📊 **Rata-rata Aktivitas Pengguna** | 91 rating/pengguna | Distribusi ekor panjang | Tantangan cold start |
-| 🎯 **Aktivitas Pengguna Teratas** | 3.747 rating | Penggemar anime super aktif | Pengguna berpengaruh |
+| 📊 **Rata-rata Aktivitas Pengguna** | 91,1 rating/pengguna | Distribusi ekor panjang | Tantangan cold start |
+| 🎯 **Median Aktivitas Pengguna** | 45,0 rating/pengguna | Mayoritas pengguna kasual | Segmentasi user |
+| 🏅 **Aktivitas Pengguna Teratas** | 3.747 rating | Penggemar anime super aktif | Pengguna berpengaruh |
 | 📈 **Rata-rata Popularitas Anime** | 640,6 rating/anime | Distribusi sangat miring | Bias popularitas |
+| 📊 **Median Popularitas Anime** | 57,0 rating/anime | Long-tail distribution | Tantangan discovery |
 | 🏆 **Anime Paling Populer** | 34.226 rating | Efek blockbuster | Daya tarik mainstream |
+
+</div>
+
+**Genre Paling Disukai (Rating 8-10):**
+
+<div align="center">
+
+| **Ranking** | **Genre** | **Rating Tinggi** | **Persentase** | **Insight** |
+|:---:|:---:|:---:|:---:|:---:|
+| 🥇 | Comedy | 1.866.974 | 22,3% | Genre utama preferensi user |
+| 🥈 | Action | 1.663.690 | 19,9% | Aksi tetap favorit mainstream |
+| 🥉 | Romance | 1.224.042 | 14,6% | Emosional connection tinggi |
+| 4️⃣ | Drama | 1.139.835 | 13,6% | Storytelling mendalam |
+| 5️⃣ | Supernatural | 1.046.932 | 12,5% | Fantasy & mistis populer |
 
 </div>
 
 **Insight Kolaboratif:**
 - **Konsistensi**: Korelasi 0,411 antara rating pengguna dan rating resmi menunjukkan pengguna menilai secara konsisten
-- **Pola Aktivitas**: Distribusi ekor panjang dengan mayoritas pengguna kasual namun ada kelompok **pengguna fanatik** yang sangat aktif
-- **Preferensi Genre**: **Comedy, Action, Romance** mendominasi rating tinggi (8-10), mencerminkan preferensi mainstream
-- Sparsity Matrix: Sangat tinggi (99,08%), menunjukkan tantangan cold start yang signifikan
+- **Pola Aktivitas**: Distribusi ekor panjang dengan mayoritas pengguna kasual (median 45 rating) namun ada kelompok **pengguna fanatik** yang sangat aktif (hingga 3.747 rating)
+- **Preferensi Genre**: **Comedy** mendominasi dengan 1,87 juta rating tinggi, diikuti **Action** dan **Romance**, mencerminkan preferensi mainstream yang mengutamakan hiburan dan emosi
+- **Matrix Sparsity**: Sangat tinggi (99,08%) dengan coverage hanya 0,92%, menunjukkan tantangan cold start yang signifikan dan kebutuhan strategi khusus untuk pengguna baru
+- **Distribusi Popularitas**: Sangat timpang dengan median anime hanya menerima 57 rating, sementara anime populer bisa mencapai 34.226 rating
+
+**Dampak untuk Sistem Rekomendasi:**
+- Perlu strategi **penanganan sparsity** yang robust
+- **Segmentasi pengguna** berdasarkan aktivitas (kasual vs fanatik)
+- **Bias genre** Comedy-Action-Romance harus diimbangi dengan diversity
+- **Cold start mitigation** menggunakan content-based fallback
 
 ---
 
