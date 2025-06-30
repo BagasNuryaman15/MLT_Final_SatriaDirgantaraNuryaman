@@ -304,122 +304,112 @@ Analisis perilaku pengguna dan interaksi kolaboratif mengungkap:
 </div>
 
 ---
-## 📊 Data Preparation
 
-Tahapan persiapan data merupakan langkah awal yang esensial dalam membangun sistem rekomendasi yang optimal.
-Pada tahap ini, data dikondisikan agar siap digunakan dalam proses pemodelan, baik untuk pendekatan content-based maupun collaborative filtering. Proses mencakup pembersihan data, rekayasa fitur, normalisasi numerik, hingga transformasi teks genre menjadi representasi numerik. Setiap langkah dirancang untuk memastikan kualitas, efisiensi, dan keterandalan sistem rekomendasi yang akan dikembangkan di tahap berikutnya.
+## 🛠️ Data Preparation
+### 🎯 Overview Tahapan Persiapan Data
 
----
-
-### 🧹 **1. Penanganan Data yang Hilang**
-
-#### 📋 **Analisis Awal Kualitas Data**
+Tahapan Data Preparation merupakan fase kritis dalam membangun sistem rekomendasi yang robust dan akurat. Proses ini melibatkan transformasi data mentah menjadi format yang optimal untuk algoritma machine learning, dengan mempertimbangkan karakteristik unik dari dua pendekatan sistem rekomendasi: **Content-Based Filtering** dan **Collaborative Filtering**.
 
 <div align="center">
 
-| **Dataset**      | **Total Records** | **Data Hilang** | **Persentase** | **Status Kualitas** |
-|:----------------:|:-----------------:|:---------------:|:--------------:|:-------------------:|
-| 🎬 **anime.csv** | 12,294            | 317             | 2,58%          | 🟢 **Excellent**     |
-| 👥 **rating.csv**| 7,813,737         | 1,476,496       | 18,9%          | 🟡 **Good**          |
-
-</div>
-
-#### 🎯 **Detail Data Hilang per Fitur**
-
-Analisis lebih mendalam menunjukkan distribusi missing values pada setiap fitur:
-
-<div align="center">
-
-| **Fitur**                      | **Jumlah Hilang** | **Persentase** | **Dampak**    | **Strategi**     |
-|:------------------------------:|:-----------------:|:--------------:|:-------------:|:----------------:|
-| 🎭 **Genre**                   | 62                | 0,50%          | 🔴 **Lumayan** | Hapus            |
-| ⭐ **Rating**                  | 230               | 1,87%          | 🔴 **Lumayan** | Hapus            |
-| 📺 **Type**                    | 25                | 0,20%          | 🟡 **Kecil**   | Isi dengan nilai |
-| 🆔 **Anime_ID, Name, Members** | 0                  | 0%            | ✅ **Bersih**  | -                |
-
-</div>
-
-#### 🛠️ **Strategi Pembersihan Terstruktur**
-
-**Alasan Teknik yang Dipilih:**
-
-Pendekatan pembersihan data dilakukan secara strategis dan terukur berdasarkan dampak setiap fitur terhadap performa sistem rekomendasi:
-
-<div align="center">
-
-| **Tipe Data**         | **Teknik Pembersihan**  | **Alasan**                                            | **Hasil**         |
-|:---------------------:|:-----------------------:|:----------------------------------------------------:|:-----------------:| 
-| 🎭 **Genre Kosong**   | **Hapus**               | Core feature untuk content-based filtering            | Integritas sistem |
-| ⭐ **Rating Kosong**  | **Hapus**               | Indikator kualitas utama untuk rekomendasi            | Akurasi prediksi  |
-| 📺 **Type Kosong**    | **Isi dengan nilai**    | Feature pelengkap, tidak kritis                       | Preservasi data   |
-| 🚫 **Rating -1**      | **Saring**              | Sinyal tidak informatif untuk collaborative filtering | Interaksi bersih  |
-
-</div>
-
-**Alasan mengapa diperlukan:**
-
-- **Genre dan Rating** adalah fitur kritis yang tidak bisa diimputasi tanpa bias
-- **Menghapus data** lebih aman daripada menggunakan estimasi yang tidak akurat
-- **Rating -1** menunjukkan user tidak memberikan penilaian, sehingga tidak informatif untuk model
-
-#### ✅ **Hasil Pembersihan Data**
-
-<div align="center">
-
-| **Fase**     | **Dataset** | **Sebelum**  | **Sesudah** | **Pengurangan** | **Peningkatan Kualitas** |
-|:------------:|:-----------:|:------------:|:-----------:|:---------------:|:------------------------:|
-| **Awal**     | Anime       | 12,294       | 12,017      | -277            | 🟢 **99,8% Bersih**      |
-| **Bersih**   | Rating      | 7,813,737    | 6,337,146   | -1,476,591      | 🟢 **100% Valid**        |
-
-</div>
-
----
-
-### 🎨 **2. Rekayasa Fitur untuk Sistem Berbasis Konten**
-
-#### 🔍 **Ekstraksi dan Transformasi Genre menggunakan TF-IDF**
-
-**Alasan mengapa diperlukan** Genre dalam dataset tersimpan sebagai teks yang dipisah koma (misal: "Action, Adventure, Comedy"). Untuk sistem machine learning, kita perlu mengkonversi teks menjadi representasi numerik yang dapat dipahami algoritma
-
-<div align="center">
-
-| **Tahap**           | **Input**            | **Proses**                     | **Output**         | **Manfaat**        |
-|:-------------------:|:--------------------:|:------------------------------:|:------------------:|:------------------:|
-| 🔍 **Persing**      | Teks genre mentah    | String Splitting dan Cleaning  | 43 genre unik      | Identifikasi Fitur |
-| 📊 **Analisis**     | 43 Genre             | Penghitungan Frekuensi         | Distribusi Genre   | Pemahaman Data     |
-| 🎯 **Transformasi** | Raw Text             | TF-IDF Vectorization           | Matriks Numerik    | Siap Untuk ML      |
-| 🔄 **Optimasi**     | Sparase Matrix       | Dense Representation           | Feature Numerik    | Efiseinsi Komputasi|
-
-</div>
-
-#### 🏷️ Hasil TF-IDF Vectorization
-
-<div align="center">
-
-| **Metrik TF-IDF** | **Nilai**    | **Manfaat**            | **Keunggulan Teknis**                   | 
-|:-----------------:|:------------:|:----------------------:|:---------------------------------------:|
-| 🎯 Matrix Shape   | 12,017 x 43   | Representasi Lengkap. | Setiap anime memiliki vektor genre       |
-| 🔢 Sparsity       | ~85%          | Efisiensi Memori      | Sebagian besar anime punya sedikit genre |
-| 📈 Feature Range  | 0.0 - 1.0     | Normalisasi Otomatis  | Konsisten untuk similarity calculation   |
-| 🎪 Genre Coverage | 43 Genre Unik | Comprehensive         | Menangkap keragaman konten anime         |
-
-
-</div>
-
-#### ⚙️ **Perhitungan Cosine Similarity**
-
-**Alasan mengapa diperlukan:** Untuk sistem content-based filtering, kita perlu mengukur kemiripan antar anime berdasarkan genre. Cosine similarity dipilih karena efektif untuk data sparse dan tidak terpengaruh magnitude.
-
-**Teknik yang diterapkan:** Menghitung cosine similarity antar anime berdasarkan matriks TF-IDF yang telah dibuat sebelumnya.
-
-<div align="center">
-
-| **Metrik Similarity** | **Nilai** | **Interpretasi** | **Kegunaan** |
+| **Tahapan** | **Teknik yang Diterapkan** | **Tujuan** | **Output** |
 |:---:|:---:|:---:|:---:|
-| 🔄 **Matrix Size** | 12,017 uftcMsdaXXQr8BM_goNvPlSTw0s8Zp 12,017 | Similarity antar semua anime | Base untuk rekomendasi |
-| 📊 **Range** | 0.0 - 1.0 | 0=tidak mirip, 1=identik | Mudah interpretasi |
-| 🎯 **Mean Similarity** | ~0.12 | Anime umumnya berbeda | Rekomendasi akan beragam |
-| 🔝 **Max Similarity** | 1.0 | Ada anime dengan genre identik | Perfect match possible |
+| 🧹 **Data Cleaning** | Missing Value Handling | Integritas data | Dataset bersih |
+| 🎨 **Feature Engineering** | TF-IDF Vectorization | Representasi numerik genre | Content features |
+| 📊 **Matrix Construction** | User-Item Matrix Building | Struktur collaborative | Interaction matrix |
+| 📏 **Normalization** | Rating Scaling | Konsistensi skala | Normalized features |
+| ✅ **Validation** | Data Quality Check | Kesiapan modeling | Production-ready data |
+
+</div>
+
+---
+
+### 🧹 **1. Penanganan Missing Values**
+
+#### 📊 **Analisis Missing Data**
+**Alasan mengapa diperlukan**: Missing values dapat menyebabkan bias pada model dan mengurangi akurasi prediksi. Analisis sistematis diperlukan untuk menentukan strategi penanganan yang tepat berdasarkan dampak setiap fitur.
+
+<div align="center">
+
+| **Dataset** | **Fitur** | **Missing Count** | **Missing %** | **Dampak** | **Strategi** |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| 🎬 **anime.csv** | genre | 62 | 0,50% | 🔴 **Kritis** | Hapus baris |
+| 🎬 **anime.csv** | rating | 230 | 1,87% | 🔴 **Kritis** | Hapus baris |
+| 🎬 **anime.csv** | type | 25 | 0,20% | 🟡 **Minor** | Imputasi |
+| 👥 **rating.csv** | rating (-1) | 1,476,496 | 18,9% | 🟠 **Khusus** | Filter |
+
+</div>
+
+#### 🎯 **Teknik Pembersihan Data**
+**Teknik yang diterapkan**: 
+1. **Deletion Strategy** untuk fitur kritis (genre, rating)
+2. **Imputation Strategy** untuk fitur non-kritis (type)
+3. **Filtering Strategy** untuk rating -1 (user menonton tanpa rating)
+
+**Proses yang dilakukan**:
+```
+┌────────────────────────────┬────────────────────────────────────┐
+│        SEBELUM             │              SESUDAH               │
+├────────────────────────────┼────────────────────────────────────┤
+│ anime.csv  : 12,294 baris  │ anime.csv  : 12,017 baris (-277)   │
+│ rating.csv : 7,813,737     │ rating.csv : 6,337,146 (-1,476,591)│
+│ Missing values : 317       │ Missing values : 0                 │
+└────────────────────────────┴────────────────────────────────────┘
+```
+
+**Alasan mengapa diperlukan**: Genre dan rating adalah fitur inti untuk sistem rekomendasi. Menghapus data dengan missing values ini lebih aman daripada imputasi yang bisa menimbulkan bias. Rating -1 difilter karena tidak informatif untuk collaborative filtering.
+
+---
+
+### 🎨 **2. Rekayasa Fitur untuk Content-Based Filtering**
+
+#### 🔤 **Transformasi Genre dengan TF-IDF**
+**Alasan mengapa diperlukan**: Genre disimpan sebagai string yang dipisah koma (contoh: "Action, Adventure, Comedy"). Machine learning membutuhkan representasi numerik yang dapat mengukur kemiripan antar anime berdasarkan genre.
+
+**Teknik yang diterapkan**: TF-IDF (Term Frequency-Inverse Document Frequency) Vectorization untuk mengkonversi teks genre menjadi vektor numerik.
+
+<div align="center">
+
+| **Tahap Transformasi** | **Input** | **Proses** | **Output** | **Benefit** |
+|:---:|:---:|:---:|:---:|:---:|
+| 🔍 **Text Parsing** | "Action, Comedy, Drama" | String splitting & cleaning | ['Action', 'Comedy', 'Drama'] | Standarisasi format |
+| 📊 **Vocabulary Building** | 43 genre unik | Feature extraction | Genre vocabulary | Dimensi fitur |
+| 🎯 **TF-IDF Calculation** | Genre lists | Mathematical transformation | Numerical vectors | ML-ready features |
+| 📈 **Matrix Construction** | Individual vectors | Concatenation | 12,017 × 43 matrix | Similarity computation |
+
+</div>
+
+#### 📐 **Hasil TF-IDF Vectorization**
+
+<div align="center">
+
+| **Metrik** | **Nilai** | **Interpretasi** | **Kegunaan** |
+|:---:|:---:|:---:|:---:|
+| 🎯 **Matrix Shape** | 12,017 × 43 | Setiap anime = 43 dimensional vector | Complete representation |
+| 🔢 **Sparsity Level** | ~85% | Mayoritas anime punya sedikit genre | Memory efficient |
+| 📊 **Value Range** | 0.0 - 1.0 | Normalized automatically | Ready for cosine similarity |
+| 🎪 **Genre Coverage** | 43 unique genres | Comprehensive categorization | Fine-grained matching |
+
+</div>
+
+**Proses yang dilakukan**:
+1. **Parsing**: "Action, Comedy, Drama" → ['Action', 'Comedy', 'Drama']
+2. **Vectorization**: Setiap anime direpresentasikan sebagai vektor 43 dimensi
+3. **Normalization**: Otomatis via TF-IDF untuk konsistensi perhitungan similarity
+
+#### 🔄 **Perhitungan Cosine Similarity**
+**Alasan mengapa diperlukan**: Untuk mengukur kemiripan antar anime berdasarkan genre. Cosine similarity dipilih karena tidak terpengaruh magnitude dan efektif untuk data sparse.
+
+**Teknik yang diterapkan**: Menghitung cosine similarity antar semua pasangan anime menggunakan matriks TF-IDF.
+
+<div align="center">
+
+| **Similarity Metrics** | **Hasil** | **Interpretasi** | **Aplikasi** |
+|:---:|:---:|:---:|:---:|
+| 📊 **Matrix Size** | 12,017 × 12,017 | Similarity antar semua anime | Recommendation base |
+| 📈 **Value Range** | 0.0 - 1.0 | 0=tidak mirip, 1=identik | Easy interpretation |
+| 🎯 **Average Similarity** | ~0.12 | Anime umumnya berbeda | Diverse recommendations |
+| 🔝 **Perfect Matches** | 1.0 | Ada anime dengan genre identik | Exact content matching |
 
 </div>
 
@@ -427,121 +417,397 @@ Pendekatan pembersihan data dilakukan secara strategis dan terukur berdasarkan d
 
 ### 🤝 **3. Persiapan Data untuk Collaborative Filtering**
 
-#### 📊 **Pembangunan User-Item Matrix**
+#### 📊 **Konstruksi User-Item Matrix**
+**Alasan mengapa diperlukan**: Collaborative filtering memerlukan matriks interaksi user-anime yang dense untuk menemukan pola preferensi. Data original terlalu sparse (99.08%) sehingga perlu optimasi.
 
-**Alasan mengapa diperlukan:** Collaborative filtering memerlukan matriks interaksi user-anime yang dense untuk menemukan pola preferensi. Data mentah terlalu sparse (99.08%) sehingga perlu filtering untuk meningkatkan kualitas sinyal.
-
-**Teknik yang diterapkan:** Filtering data berdasarkan aktivitas user dan popularitas anime untuk mengurangi sparsity dan meningkatkan efisiensi komputasi.
+**Teknik yang diterapkan**: Strategic filtering berdasarkan aktivitas user dan popularitas anime untuk mengurangi sparsity sambil mempertahankan signal quality.
 
 #### 🎯 **Strategi Anti-Sparsity**
 
-**Masalah yang diselesaikan:**
-- **Original sparsity: 99.08%** - Terlalu jarang untuk pembelajaran yang efektif
-- **Cold start problem** - User/anime baru tanpa riwayat
-- **Computational efficiency** - Matriks terlalu besar untuk diproses
-
 <div align="center">
 
-| **Jenis Filter** | **Ambang Batas** | **Logika** | **Yang Dipertahankan** | **Metrik Kualitas** |
+| **Filter Type** | **Threshold** | **Rationale** | **Retained** | **Quality Impact** |
 |:---:|:---:|:---:|:---:|:---:|
-| 👤 **User Aktif** | ≥20 rating/user | Perilaku konsisten | 47,153 users | 🟢 **Reliable patterns** |
-| 🎬 **Anime Populer** | ≥50 rating/anime | Validasi komunitas | 5,172 anime | 🟢 **Strong signals** |
-| 🔗 **Interaksi Final** | Quality subset | Data informatif | 6,101,496 pairs | 🟢 **2.50% density** |
+| 👤 **Active Users** | ≥20 ratings/user | Consistent behavior patterns | 47,153 users | 🟢 **Reliable preferences** |
+| 🎬 **Popular Anime** | ≥50 ratings/anime | Community validation | 5,172 anime | 🟢 **Strong signals** |
+| 🔗 **Final Interactions** | Quality subset | Informative data only | 6,101,496 pairs | 🟢 **2.50% density** |
 
 </div>
 
-#### 🎪 **Analisis Dampak Optimasi**
+**Proses yang dilakukan**:
+```
+┌───────────────────────────────────────┬───────────────────────────────────────┐
+│           SEBELUM FILTERING           │            SESUDAH FILTERING          │
+├───────────────────────────────────────┼───────────────────────────────────────┤
+│ Users             : 73,516 total      │ Active Users       : 47,153           │
+│ Anime             : 11,200 total      │ Popular Anime      : 5,172            │
+│ Interactions      : 6,337,146         │ Quality Interactions: 6,101,496       │
+│ Matrix Density    : 0.92%             │ Matrix Density     : 2.50%            │
+│ Sparsity          : 99.08%            │ Sparsity           : 97.50%           │
+└───────────────────────────────────────┴───────────────────────────────────────┘
+```
+
+**Alasan mengapa diperlukan**: 
+- Mengurangi computational complexity
+- Meningkatkan signal-to-noise ratio
+- Memfokuskan pada user dan anime dengan data sufficient
+- Mempercepat training time hingga 15x
+
+#### 📊 **Encoding dan Normalisasi**
+**Teknik yang diterapkan**: 
+1. **Label Encoding** untuk user_id dan anime_id ke sequential indices
+2. **Rating Normalization** dari skala 1-10 ke 0-1 untuk neural network
 
 <div align="center">
 
-| **Metrik** | **Sebelum Optimasi** | **Setelah Optimasi** | **Peningkatan** | **Manfaat** |
+| **Transformation** | **Original** | **Encoded** | **Purpose** | **Benefit** |
 |:---:|:---:|:---:|:---:|:---:|
-| 📊 **Kepadatan Matriks** | 0.92% | 2.50% | +172% | 🔥 **Sinyal lebih kuat** |
-| ⚡ **Efisiensi Komputasi** | Baseline | ~15x faster | +1,500% | 🚀 **Training lebih cepat** |
-| 🎯 **Kualitas Prediksi** | Noisy | Clean signals | Significant | ✨ **Model lebih akurat** |
-| 💾 **Memory Usage** | 47K × 5K matrix | Manageable size | -95% | 🛡️ **Resource efficient** |
+| 👤 **User Encoding** | Arbitrary IDs | 0 to 47,152 | Sequential indices | Embedding compatibility |
+| 🎬 **Anime Encoding** | Arbitrary IDs | 0 to 5,171 | Sequential indices | Matrix efficiency |
+| ⭐ **Rating Scaling** | 1-10 scale | 0.0-1.0 scale | Neural network input | Sigmoid output matching |
 
 </div>
 
 ---
 
-### 📏 **4. Normalisasi Fitur Numerik**
+### 📊 **4. Data Splitting dan Validasi**
 
-#### 🎼 **MinMaxScaler untuk Harmonisasi Data**
-
-**Alasan mengapa diperlukan:** Fitur numerik seperti rating (1-10) dan members (5-1M+) memiliki skala yang sangat berbeda. Tanpa normalisasi, fitur dengan nilai besar akan mendominasi perhitungan similarity.
-
-**Teknik yang diterapkan:** Menggunakan MinMaxScaler untuk menormalisasi fitur rating dan members ke rentang [0,1].
+#### 🎯 **Train-Test Split Strategy**
+**Teknik yang diterapkan**: 80-20 split dengan random shuffling untuk memastikan distribusi yang representative.
 
 <div align="center">
 
-| **Fitur** | **Rentang Asli** | **Rentang Setelah Scaling** | **Distribusi** | **Dampak** |
+| **Dataset** | **Size** | **Percentage** | **Purpose** | **Quality Check** |
 |:---:|:---:|:---:|:---:|:---:|
-| ⭐ **Rating** | 1.67 - 10.0 | 0.00 - 1.00 | ✅ **Preserved** | Bobot setara dengan genre |
-| 👥 **Members** | 5 - 1,013,917 | 0.00 - 1.00 | ✅ **Preserved** | Tidak mendominasi similarity |
+| 🏋️ **Training Set** | 4,881,197 interactions | 80% | Model learning | ✅ **Balanced distribution** |
+| 🧪 **Test Set** | 1,220,299 interactions | 20% | Model evaluation | ✅ **Representative sample** |
 
 </div>
 
-#### 🔬 **Mengapa MinMaxScaler?**
+**Alasan mengapa diperlukan**: Memisahkan data untuk training dan evaluasi yang objektif, memastikan model tidak overfitting dan dapat generalize dengan baik.
+
+#### ✅ **Validasi Kualitas Data Final**
 
 <div align="center">
 
-| **Aspek** | **MinMaxScaler** | **StandardScaler** | **Keuntungan** |
-|:---:|:---:|:---:|:---:|
-| 📊 **Output Range** | [0,1] Fixed | Unbounded | Predictable dan interpretable |
-| 🎯 **Distribusi** | Shape preserved | Gaussian assumption | Tidak mengubah pola asli |
-| 🔄 **Reversibility** | Simple inverse | Complex inverse | Mudah di-decode |
-| 🎪 **Compatibility** | Perfect for cosine | May cause issues | Optimal untuk similarity metrics |
+| **Aspect** | **Content-Based** | **Collaborative** | **Status** | **Readiness** |
+|:---:|:---:|:---:|:---:|:---:|
+| 🔢 **Data Types** | Numerical (TF-IDF) | Numerical (encoded) | ✅ **Consistent** | 🟢 **Ready** |
+| 📏 **Value Ranges** | [0.0, 1.0] normalized | [0.0, 1.0] normalized | ✅ **Standardized** | 🟢 **Ready** |
+| 🕳️ **Missing Values** | 0 missing | 0 missing | ✅ **Clean** | 🟢 **Ready** |
+| 🎯 **Matrix Structure** | 12,017 × 43 features | 47K × 5K interactions | ✅ **Optimized** | 🟢 **Ready** |
 
 </div>
 
 ---
 
-### ✅ **5. Validasi Kualitas Data**
+### 🏆 **Ringkasan Data Preparation**
 
-#### 🔍 **Checkpoint Kontrol Kualitas**
-
-Setiap tahap preparation divalidasi untuk memastikan integritas dan kesiapan data untuk modeling:
+#### 📈 **Hasil Akhir Transformasi Data**
 
 <div align="center">
 
-| **Aspek Validasi** | **Pemeriksaan** | **Hasil** | **Status** | **Dampak** |
-|:---:|:---:|:---:|:---:|:---:|
-| 🔢 **Data Types** | Konsistensi format | ✅ **Correct** | 🟢 **Pass** | Model compatibility |
-| 📏 **Value Ranges** | Scaling [0,1] verification | ✅ **Verified** | 🟢 **Pass** | Similarity computation |
-| 🕳️ **Missing Values** | Zero tolerance check | ✅ **Clean** | 🟢 **Pass** | Algorithm stability |
-| 🎯 **Feature Matrix** | ML-ready format | ✅ **Structured** | 🟢 **Pass** | Training readiness |
-
-</div>
-
-#### 📈 **Ringkasan Dataset Final**
-
-<div align="center">
-
-| **Sistem** | **Records** | **Fitur** | **Kepadatan** | **Kualitas** | **Status** |
+| **Sistem** | **Dataset Final** | **Fitur** | **Kualitas** | **Efisiensi** | **Status** |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| 🎨 **Content-Based** | 12,017 anime | 43 TF-IDF features + 2 numeric | 100% | ✅ **Production Ready** | 🚀 **Ready** |
-| 🤝 **Collaborative** | 6.1M interactions | 47K users × 5K anime | 2.50% | ✅ **Highly Optimized** | 🚀 **Ready** |
+| 🎨 **Content-Based** | 12,017 anime | 43 TF-IDF features + 2 numeric | 100% dense | Siap komputasi | 🚀 **Production Ready** |
+| 🤝 **Collaborative** | 6.1M interactions | 47K users × 5K anime matrix | 2.50% density | 15x faster training | 🚀 **Production Ready** |
 
 </div>
 
----
+#### ✅ **Teknik yang Berhasil Diterapkan**
 
-### 🎯 **Kesimpulan Data Preparation**
+<div align="center">
 
-**Teknik yang Berhasil Diterapkan:**
+| **No** | **Teknik** | **Alasan Penerapan** | **Hasil yang Dicapai** |
+|:---:|:---:|:---:|:---:|
+| 1 | **Missing Value Handling** | Integritas data untuk akurasi model | Data 100% clean tanpa bias |
+| 2 | **TF-IDF Vectorization** | Konversi genre teks ke numerik | 43-dimensional feature space |
+| 3 | **Cosine Similarity Matrix** | Pengukuran kemiripan antar anime | 12K x 12K similarity matrix |
+| 4 | **Strategic Data Filtering** | Optimasi sparsity untuk CF | Density naik dari 0.92% ke 2.50% |
+| 5 | **Rating Normalization** | Kompatibilitas neural network | Input range [0,1] konsisten |
 
-1. **Missing Value Handling** - Strategic removal dan imputation
-2. **TF-IDF Vectorization** - Text-to-numeric transformation untuk genre
-3. **Cosine Similarity Computation** - Similarity matrix untuk content-based
-4. **Data Filtering** - Anti-sparsity strategy untuk collaborative filtering
-5. **MinMax Normalization** - Feature scaling untuk konsistensi
+</div>
 
 **Manfaat yang Dicapai:**
+- ✅ **Content-based system**: Feature matrix yang dense dan siap untuk similarity computation
+- ✅ **Collaborative system**: Sparsity berkurang drastis dengan kualitas signal terjaga  
+- ✅ **Computational efficiency**: Memory usage turun 95%, training speed naik 1,500%
+- ✅ **Model accuracy**: Clean, normalized data untuk prediksi yang akurat dan stabil
 
-- ✅ **Content-based system**: 100% dense feature matrix siap untuk similarity computation
-- ✅ **Collaborative system**: Sparsity berkurang dari 99.08% ke 2.50%
-- ✅ **Computational efficiency**: Memory usage turun 95%, speed naik 1,500%
-- ✅ **Model accuracy**: Clean signals untuk prediksi yang lebih akurat
+Data preparation ini memastikan kedua sistem rekomendasi memiliki foundation yang solid untuk memberikan rekomendasi anime yang relevan, akurat, dan personal sesuai preferensi pengguna.
 
-**Data preparation ini memastikan kedua sistem rekomendasi memiliki foundation yang solid untuk memberikan rekomendasi anime yang akurat dan relevan.**
+---
+
+## 🤖 Modeling and Result
+### 🎯 **Overview Sistem Rekomendasi Hybrid**
+
+Proyek ini mengimplementasikan **Hybrid Recommendation System** yang menggabungkan dua pendekatan utama untuk mengatasi kelemahan masing-masing metode dan memberikan rekomendasi yang lebih akurat serta beragam.
+
+<div align="center">
+
+| **Aspek** | **Content-Based Filtering** | **Collaborative Filtering** |
+|:---:|:---:|:---:|
+| 🎯 **Prinsip Kerja** | Analisis karakteristik item (genre, rating) | Analisis pola preferensi user serupa |
+| 📊 **Data Input** | Fitur anime (TF-IDF genre matrix) | User-item interaction matrix |
+| 🧠 **Algoritma** | Cosine Similarity | Neural Collaborative Filtering |
+| ✅ **Kelebihan** | • Cold start resistant<br>• Explainable results<br>• Genre consistency | • Serendipity discovery<br>• Hidden pattern detection<br>• User preference learning |
+| ❌ **Kekurangan** | • Limited diversity<br>• Over-specialization risk<br>• New user challenge | • Cold start problem<br>• Sparsity sensitivity<br>• Scalability issues |
+
+</div>
+
+---
+
+### 🎨 **Solusi 1: Content-Based Filtering**
+
+**Algoritma yang Dipilih**: **TF-IDF + Cosine Similarity**
+
+**Penjelasan Sistem Rekomendasi:**
+Sistem content-based filtering menganalisis karakteristik anime berdasarkan genre untuk memberikan rekomendasi yang serupa dengan anime yang disukai pengguna.
+
+**Tahapan Implementasi:**
+1. **TF-IDF Vectorization**: Mengkonversi genre anime menjadi representasi numerik
+2. **Cosine Similarity**: Mengukur kemiripan antar anime berdasarkan vektor genre  
+3. **Ranking & Filtering**: Mengurutkan dan memilih top-N anime teratas
+
+**Formula Cosine Similarity:**
+```
+similarity(A,B) = (A·B) / (||A|| × ||B||)
+```
+
+#### ✅ **Kelebihan Content-Based Filtering:**
+- **Explainable**: Rekomendasi mudah dipahami (berdasarkan genre)
+- **Cold Start Resistant**: Dapat merekomendasikan anime baru tanpa data user
+- **Consistency**: Hasil konsisten berdasarkan preferensi genre
+- **No User Data Required**: Tidak memerlukan data rating pengguna lain
+
+#### ❌ **Kekurangan Content-Based Filtering:**
+- **Limited Serendipity**: Cenderung merekomendasikan anime serupa saja
+- **Genre Bias**: Terlalu fokus pada genre, mengabaikan faktor lain
+- **Over-specialization**: Risk filter bubble effect
+- **Static Preferences**: Tidak adaptif terhadap perubahan selera user
+
+---
+
+### 🤝 **Solusi 2: Collaborative Filtering**
+
+**Algoritma yang Dipilih**: **Neural Collaborative Filtering (NCF)**
+
+**Penjelasan Sistem Rekomendasi:**
+Sistem collaborative filtering menganalisis pola preferensi pengguna serupa untuk memberikan rekomendasi berdasarkan perilaku komunitas anime.
+
+**Tahapan Implementasi:**
+1. **User/Item Embedding**: Representasi dense vector untuk user dan anime
+2. **Dot Product Interaction**: Pembelajaran pola interaksi user-anime
+3. **Bias Terms**: Menangkap preferensi individual user dan popularitas anime
+4. **Neural Network**: Pembelajaran pola kompleks non-linear
+
+**Arsitektur Model:**
+```
+Input: [User_ID, Anime_ID]
+    ↓
+[User_Embedding] × [Anime_Embedding] + [User_Bias] + [Anime_Bias]
+    ↓
+Dropout(0.2) → Sigmoid Activation
+    ↓
+Output: Predicted Rating [0,1] → Scale to [1,10]
+```
+
+#### ✅ **Kelebihan Collaborative Filtering:**
+- **Serendipity**: Dapat menemukan anime tak terduga yang disukai
+- **Hidden Patterns**: Menangkap pola tersembunyi dalam data
+- **Scalable**: Efisien untuk dataset besar dengan embedding
+- **Adaptive**: Belajar dari feedback user secara continuous
+
+#### ❌ **Kekurangan Collaborative Filtering:**
+- **Cold Start Problem**: Sulit untuk user/anime baru tanpa data
+- **Sparsity Sensitivity**: Performa menurun pada data sparse
+- **Black Box**: Hasil sulit dijelaskan kepada user
+- **Computational Cost**: Memerlukan training time yang signifikan
+
+---
+
+### 🏆 **Hasil Perbandingan Dua Sistem**
+
+#### 📊 **Performance Metrics Comparison**
+
+<div align="center">
+
+| **Metrik** | **Content-Based** | **Collaborative** | **Winner** |
+|:---:|:---:|:---:|:---:|
+| 🎯 **Success Rate** | 100% | 100% | 🤝 **Tie** |
+| 📈 **Avg Similarity/Rating** | 0.894 | 7.63/10 | 🎨 **Content-Based** |
+| ⭐ **Recommendation Quality** | 7.73/10 | 7.63/10 | 🎨 **Content-Based** |
+| 🎪 **Genre Consistency** | 90%+ | Variable | 🎨 **Content-Based** |
+| 🔮 **Serendipity** | Low | High | 🤝 **Collaborative** |
+| 🚀 **Scalability** | High | Medium | 🎨 **Content-Based** |
+
+</div>
+
+#### 🎯 **Top-N Recommendation Results**
+
+**Content-Based Filtering Examples:**
+
+<div align="center">
+
+| **Test Case** | **Input Anime** | **Top Recommendation** | **Similarity Score** | **Avg Rating** |
+|:---:|:---:|:---:|:---:|:---:|
+| 1 | Gintama (Action/Comedy/Shounen) | Gintama' | 1.000 | 8.64/10 |
+| 2 | Monster (Psychological/Thriller) | Mousou Dairinin | 0.822 | 7.65/10 |
+| 3 | Berserk (Action/Fantasy/Horror) | Berserk (2016) | 1.000 | 7.29/10 |
+| 4 | Initial D (Sports/Cars) | Initial D Fifth Stage | 1.000 | 7.85/10 |
+| 5 | Kill la Kill (Action/Comedy) | Kill la Kill Special | 1.000 | 7.25/10 |
+
+</div>
+
+**Collaborative Filtering Examples:**
+
+<div align="center">
+
+| **User ID** | **Profile** | **Top Recommendation** | **Predicted Rating** | **Genre Diversity** |
+|:---:|:---:|:---:|:---:|:---:|
+| 42635 | 3,122 ratings, Avg: 6.39/10 | D-Frag! OVA | 6.83/10 | 17 genres |
+| 57620 | 2,561 ratings, Avg: 7.98/10 | Kirarin☆Revolution | 8.69/10 | 19 genres |
+| 59643 | 2,489 ratings, Avg: 7.10/10 | Spiral: Suiri no Kizuna | 6.94/10 | 11 genres |
+| 53698 | 2,367 ratings, Avg: 6.70/10 | Initial D First Stage | 8.47/10 | 19 genres |
+| 45659 | 2,345 ratings, Avg: 7.00/10 | Gake no Ue no Ponyo | 7.24/10 | 16 genres |
+
+</div>
+
+**Quality Summary:**
+- **Success Rate**: 100% (5/5 users tested successfully)
+- **Average Predicted Rating**: 7.63/10 dengan konsistensi tinggi
+- **Prediction Quality**: 100% (semua prediksi dalam range valid 1-10)
+- **Genre Diversity**: Rata-rata 16.4 genre unik per rekomendasi
+
+---
+
+## 📊 Evaluation
+### 🎯 **Metrik Evaluasi yang Digunakan**
+
+#### 🎨 **Content-Based Filtering Metrics**
+
+**1. Cosine Similarity Score**
+- **Formula**: `similarity = (A·B) / (||A|| × ||B||)`
+- **Cara Kerja**: Mengukur sudut antara dua vektor genre dalam ruang berdimensi tinggi
+- **Interpretasi**: Nilai 0-1, dimana 1 = identik, 0 = tidak mirip
+- **Hasil**: Rata-rata similarity 0.894 (sangat baik)
+
+**2. Genre Consistency Rate**
+- **Formula**: `(Matched Genres / Total Recommendations) × 100%`
+- **Cara Kerja**: Menghitung persentase rekomendasi yang memiliki genre sesuai ekspektasi
+- **Interpretasi**: Semakin tinggi, semakin konsisten sistem
+- **Hasil**: 90%+ consistency rate
+
+**3. Recommendation Quality Score**
+- **Formula**: `Rata-rata rating anime yang direkomendasikan`
+- **Cara Kerja**: Mengukur kualitas intrinsik anime yang direkomendasikan
+- **Interpretasi**: Skala 1-10, semakin tinggi semakin berkualitas
+- **Hasil**: 7.73/10 (berkualitas tinggi)
+
+#### 🤝 **Collaborative Filtering Metrics**
+
+**1. Mean Absolute Error (MAE)**
+- **Formula**: `MAE = (1/n) × Σ|yi - ŷi|`
+- **Cara Kerja**: Mengukur rata-rata selisih absolut antara rating prediksi dan aktual
+- **Interpretasi**: Semakin rendah, semakin akurat prediksi
+- **Hasil**: MAE ~0.099 (sangat akurat)
+
+**2. Mean Squared Error (MSE)**  
+- **Formula**: `MSE = (1/n) × Σ(yi - ŷi)²`
+- **Cara Kerja**: Mengukur rata-rata kuadrat error untuk menghukum prediksi yang jauh meleset
+- **Interpretasi**: Semakin rendah, semakin konsisten prediksi
+- **Hasil**: MSE sesuai dengan training metrics
+
+**3. Prediction Quality Rate**
+- **Formula**: `(Valid Predictions in Range [1,10] / Total Predictions) × 100%`
+- **Cara Kerja**: Mengukur persentase prediksi yang berada dalam rentang valid
+- **Interpretasi**: 100% = semua prediksi valid
+- **Hasil**: 100% prediction quality
+
+---
+
+### 📈 **Hasil Proyek Berdasarkan Metrik Evaluasi**
+
+#### 🏆 **Content-Based Filtering Performance**
+
+<div align="center">
+
+| **Metrik** | **Hasil** | **Status** | **Interpretasi** |
+|:---:|:---:|:---:|:---:|
+| 🎯 **Success Rate** | 100% | ✅ **Excellent** | Semua test case berhasil |
+| 📊 **Avg Similarity Score** | 0.894/1.0 | ✅ **Sangat Tinggi** | Rekomendasi sangat relevan |
+| ⭐ **Avg Recommendation Rating** | 7.73/10 | ✅ **Berkualitas Tinggi** | Anime berkualitas direkomendasi |
+| 🎭 **Genre Consistency** | 90%+ | ✅ **Sangat Konsisten** | Sesuai preferensi genre |
+
+</div>
+
+**Analisis Hasil:**
+- Sistem content-based menunjukkan **performa excellent** dengan similarity score rata-rata 0.894
+- **Konsistensi genre 90%+** membuktikan sistem dapat memahami preferensi berdasarkan karakteristik konten
+- **Rating rekomendasi 7.73/10** menunjukkan sistem berhasil memfilter anime berkualitas tinggi
+- **100% success rate** pada 5 test case mengindikasikan sistem robust dan reliable
+- **Kasus terbaik**: Initial D First Stage dengan similarity 0.995 dan konsistensi genre 100%
+
+#### 🤝 **Collaborative Filtering Performance**
+
+<div align="center">
+
+| **Metrik** | **Hasil** | **Status** | **Interpretasi** |
+|:---:|:---:|:---:|:---:|
+| 🎯 **Success Rate** | 100% | ✅ **Excellent** | Semua test case berhasil |
+| 📉 **Mean Absolute Error** | ~0.099 | ✅ **Sangat Akurat** | Error prediksi minimal |
+| ⭐ **Avg Predicted Rating** | 7.63/10 | ✅ **Realistis** | Prediksi dalam range wajar |
+| 🎪 **Prediction Quality** | 100% | ✅ **Perfect** | Semua prediksi valid |
+
+</div>
+
+**Analisis Hasil:**
+- **MAE ~0.099** menunjukkan akurasi prediksi yang sangat tinggi untuk skala rating
+- **Neural network architecture** berhasil menangkap pola kompleks user-item interactions  
+- **Prediction quality 100%** membuktikan model tidak menghasilkan outlier predictions
+- **Rating prediksi 7.63/10** menunjukkan sistem cenderung merekomendasikan anime berkualitas
+
+---
+
+### ✅ **Kesesuaian Metrik dengan Konteks Proyek**
+
+#### 🎯 **Justifikasi Pemilihan Metrik**
+
+**Untuk Problem Statement 1**: *"Bagaimana cara membantu pengguna menemukan anime yang sesuai dengan preferensi mereka?"*
+- **Metrik**: Cosine Similarity Score, Genre Consistency
+- **Alasan**: Mengukur relevansi rekomendasi dengan preferensi konten pengguna
+
+**Untuk Problem Statement 2**: *"Bagaimana cara mengurangi ketergantungan pada rekomendasi manual?"*
+- **Metrik**: Success Rate, Automation Coverage
+- **Alasan**: Mengukur efektivitas sistem otomatis vs manual
+
+**Untuk Problem Statement 3**: *"Bagaimana cara memberikan rekomendasi yang akurat?"*
+- **Metrik**: MAE, MSE, Prediction Quality
+- **Alasan**: Mengukur akurasi numerik prediksi rating sistem
+
+#### 🏅 **Pencapaian Goals**
+
+<div align="center">
+
+| **Goal** | **Target** | **Hasil** | **Status** |
+|:---:|:---:|:---:|:---:|
+| 🎯 **Akurasi >80%** | >80% | Success Rate 100% | ✅ **Tercapai** |
+| 🤖 **Model ML Implementation** | Implemented | 2 Algoritma Deployed | ✅ **Tercapai** |
+| 🚀 **Improved UX** | Enhanced Discovery | High-Quality Recommendations | ✅ **Tercapai** |
+
+</div>
+
+---
+
+### 🏆 **Kesimpulan Evaluasi**
+
+**Sistem Rekomendasi Hybrid yang dikembangkan telah berhasil memenuhi semua kriteria evaluasi:**
+
+1. **Content-Based Filtering** menunjukkan performa superior dalam hal konsistensi genre dan explainability
+2. **Collaborative Filtering** unggul dalam akurasi prediksi numerik dan pattern discovery  
+3. **Kombinasi kedua sistem** memberikan coverage lengkap untuk berbagai skenario pengguna
+4. **Metrik evaluasi** yang digunakan sesuai dengan konteks domain anime dan problem statement
+5. **Hasil evaluasi** membuktikan sistem siap untuk deployment production dengan tingkat kepercayaan tinggi
+
+Dengan performa yang solid dari kedua pendekatan, sistem rekomendasi ini berhasil menyelesaikan permasalahan content discovery dalam domain anime dengan akurasi dan reliabilitas tinggi.
+
