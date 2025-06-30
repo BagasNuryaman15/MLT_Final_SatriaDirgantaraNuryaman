@@ -79,4 +79,4 @@ venv.bak/
 
 # System files
 Thumbs.db
-Data/rating.csv
+Data/ratings.csv

@@ -1,5 +1,5 @@
 # 🎌 Laporan Proyek Machine Learning Terapan
-## Sistem Rekomendasi Anime Berbasis Hybrid Filtering
+## Sistem Rekomendasi Anime dengan Content-Based dan Collaborative Filtering
 
 <div align="center">
 
@@ -29,7 +29,7 @@ Dengan ledakan judul anime yang mencapai **lebih dari 300 judul TV** setiap tahu
 
 ### 📚 Riset dan Referensi Terkait
 
-Penelitian terdahulu menunjukkan bahwa **hybrid recommendation systems** memberikan performa superior dibanding single-method approaches, dengan peningkatan user satisfaction hingga 40% *(Putri & Faisal, 2023)*. Implementasi sistem rekomendasi pada domain entertainment telah menciptakan ecosystem yang lebih sustainable bagi content creators sekaligus memberikan pengalaman yang truly personalized bagi pengguna.
+Penelitian terdahulu menunjukkan bahwa **sistem rekomendasi dengan pendekatan ganda** memberikan performa superior dibanding single-method approaches, dengan peningkatan user satisfaction hingga 40% *(Putri & Faisal, 2023)*. Implementasi sistem rekomendasi pada domain entertainment telah menciptakan ecosystem yang lebih sustainable bagi content creators sekaligus memberikan pengalaman yang truly personalized bagi pengguna.
 
 ---
 
@@ -67,7 +67,7 @@ Penelitian terdahulu menunjukkan bahwa **hybrid recommendation systems** memberi
 
 ### 🛠️ Solution Approach
 
-Proyek ini menggunakan **Hybrid Recommendation System** yang menggabungkan:
+Proyek ini mengimplementasikan **Dua Pendekatan Sistem Rekomendasi** yang independen namun saling melengkapi:
 
 <div align="center">
 
@@ -79,67 +79,127 @@ Proyek ini menggunakan **Hybrid Recommendation System** yang menggabungkan:
 
 </div>
 
-**Keunggulan Hybrid Approach:**
-- Mengatasi kelemahan masing masing metode
-- Memberikan rekomendasi yang lebih akurat dan beragam
-- Dapat menangani berbagai skenario pengguna
+**Keunggulan Dual Approach:**
+- Setiap sistem mengatasi aspek berbeda dalam content discovery
+- Content-based untuk similarity, Collaborative untuk user preference
+- Implementasi independen yang dapat digunakan sesuai konteks pengguna
 
 ---
 
 ## 📊 Data Understanding
 ### 🗂️ Dataset Overview
-#### 📋 Informasi Umum Dataset
+
+#### 📋 **Informasi Dataset**
 - **Nama Dataset**: Anime Recommendations Database
 - **Sumber Data**: [Kaggle - Anime Recommendations Database](https://www.kaggle.com/CooperUnion/anime-recommendations-database)
+- **Penulis**: [CooperUnion](https://www.kaggle.com/organizations/CooperUnion)
+- **Lisensi**: CC0: Public Domain
+- **Periode Data**: Data anime dari MyAnimeList.net hingga tahun 2017
 - **Format File**: 2 file CSV (anime.csv, rating.csv)
 - **Ukuran Total**: ~120 MB
-- **Periode Data**: Data anime dari MyAnimeList.net hingga tahun 2017
-- **Jumlah Total Records**: 
-  - anime.csv: 12,294 records
-  - rating.csv: 7,813,737 records
 
-> 📥 **Download Dataset**: Mengingat ukuran file yang besar (~114MB untuk rating.csv), dataset lengkap tersedia di [Google Drive](https://drive.google.com/file/d/17-uftcMsdaXXQr8BM_goNvPlSTw0s8Zp/view?usp=sharing).
+### 📊 **Jumlah Data Secara Rinci**
 
-### 🎯 Deskripsi Dataset
+#### 🎬 **Dataset 1: anime.csv**
+- **Jumlah Baris**: 12,294 anime
+- **Jumlah Kolom**: 7 kolom
+- **Ukuran File**: ~1 MB
+- **Format**: CSV dengan delimiter koma
+
+#### 👥 **Dataset 2: rating.csv**  
+- **Jumlah Baris**: 7,813,737 interaksi rating
+- **Jumlah Kolom**: 3 kolom
+- **Ukuran File**: ~114.1 MB
+- **Format**: CSV dengan delimiter koma
+
+### 🔍 **Kondisi Data dan Kualitas**
+
+#### � **Missing Values Analysis**
+
+<div align="center">
+
+| **Dataset** | **Kolom** | **Missing Count** | **Missing %** | **Dampak** |
+|:---:|:---:|:---:|:---:|:---:|
+| anime.csv | genre | 62 | 0.50% | Moderate |
+| anime.csv | rating | 230 | 1.87% | Significant |
+| anime.csv | type | 25 | 0.20% | Minimal |
+| rating.csv | - | 0 | 0.00% | None |
+
+</div>
+
+#### 🔄 **Duplicate Data Analysis**
+- **anime.csv**: 1 duplikat terdeteksi (0.008%)
+- **rating.csv**: 1 duplikat terdeteksi (0.000001%)
+- **Total Duplikasi**: Sangat minimal, tidak signifikan
+
+#### 📊 **Outlier Analysis**
+- **Rating Anime**: Rentang normal 1.67-10.0, distribusi wajar
+- **Rating User**: Rentang 1-10 dengan bias positif (normal untuk rating)
+- **Members Count**: Wide range 5-1M+ (expected untuk popularitas)
+- **Episodes**: 1-1818 episodes (wajar untuk berbagai format anime)
+
+#### ⚠️ **Data Anomaly**
+- **Rating -1**: 1,476,496 entries (18.9%) - User menonton tanpa rating
+- **"Unknown" Episodes**: Beberapa anime dengan episode tidak diketahui
+- **Long Titles**: Beberapa anime dengan nama sangat panjang (normal)
+
+### 🎯 **Deskripsi Dataset**
 Dataset ini berisi informasi komprehensif tentang anime dan rating pengguna yang dikumpulkan dari platform MyAnimeList.net. Dataset terdiri dari dua file utama yang saling terhubung melalui `anime_id`, memungkinkan analisis mendalam tentang preferensi pengguna dan karakteristik anime untuk membangun sistem rekomendasi yang akurat dan personal.
 
 ---
 
-### 📁 Struktur Data dan Variabel
+### 📁 **Uraian Seluruh Fitur pada Data**
+
+#### 🎬 **Dataset 1: anime.csv**
+Dataset ini berisi informasi metadata tentang anime yang menjadi dasar untuk sistem rekomendasi berbasis konten.
 
 <div align="center">
 
-| 🎬 **Data Anime** | 👥 **Interaksi Pengguna** | 🎯 **Statistik Utama** |
-|:---:|:---:|:---:|
-| **12,294** anime unik | **7.8 juta+** rating pengguna | **73 ribu+** pengguna aktif |
-| **43** genre unik | **Rentang rating:** 1-10 | **Rating rata-rata:** 6.47/10 |
-| **6** tipe anime | **Kelengkapan data:** 99%+ | **Genre teratas:** Comedy |
+| **Variabel** | **Tipe Data** | **Deskripsi Lengkap** | **Rentang Nilai** | **Missing** | **Peran** |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| `anime_id` | Integer | ID unik untuk setiap anime (referensi MyAnimeList.net) | 1 - 34,519 | 0 (0%) | Primary Key |
+| `name` | String | Nama lengkap anime dalam bahasa asli/Inggris | Varchar(255) | 0 (0%) | Identifier |
+| `genre` | String | Daftar genre anime yang dipisahkan koma | Multi-value | 62 (0.50%) | Content Feature |
+| `type` | String | Format/tipe anime (TV, Movie, OVA, ONA, Special, Music) | 6 categories | 25 (0.20%) | Content Feature |
+| `episodes` | Mixed | Jumlah episode total ("Unknown" jika tidak diketahui) | 1-1,818 | 0 (0%) | Content Feature |
+| `rating` | Float | Rating rata-rata dari semua user (skala 1-10) | 1.67 - 10.0 | 230 (1.87%) | Target Variable |
+| `members` | Integer | Jumlah member yang menambahkan anime ke list mereka | 5 - 1,013,917 | 0 (0%) | Popularity Metric |
 
 </div>
 
-#### 🎬 **File 1: anime.csv**
-Dataset ini berisi informasi metadata tentang anime yang menjadi dasar untuk sistem rekomendasi berbasis konten.
+**Detailed Field Analysis:**
+- **anime_id**: Primary key yang menghubungkan dengan rating.csv
+- **name**: Nama anime dalam berbagai bahasa, beberapa menggunakan karakter khusus
+- **genre**: Multi-valued field dengan 43 genre unik seperti "Action, Adventure, Comedy"
+- **type**: Distribusi: TV (30.8%), OVA (27.0%), Movie (20.1%), Special (11.4%), ONA (4.5%), Music (6.2%)
+- **episodes**: String karena ada nilai "Unknown", range numerik 1-1,818 episode
+- **rating**: Community rating dengan distribusi normal, mean=6.47, std=1.18
+- **members**: Indikator popularitas dengan distribusi skewed (long tail)
 
-| Variabel     | Tipe Data | Deskripsi                                                                 | Data Hilang | Keterangan |
-|-------------|-----------|---------------------------------------------------------------------------|-------------|------------|
-| `anime_id`  | Integer   | ID unik untuk setiap anime (mengacu pada myanimelist.net)                | 0 (0%)      | Kunci Utama |
-| `name`      | String    | Nama lengkap anime                                                        | 0 (0%)      | Lengkap Semua |
-| `genre`     | String    | Daftar genre anime, dipisahkan koma                                       | 62 (0,50%)  | Multi-nilai |
-| `type`      | String    | Tipe anime (TV, Movie, OVA, ONA, Special, Music)                         | 25 (0,20%)  | Kategori |
-| `episodes`  | String    | Jumlah episode (1 jika movie, "Unknown" jika tidak diketahui)            | 0 (0%)      | Tipe Campuran |
-| `rating`    | Float     | Rata-rata rating dari seluruh user (skala 1-10)                          | 230 (1,87%) | Variabel Target |
-| `members`   | Integer   | Jumlah anggota komunitas yang memasukkan anime ini ke dalam list mereka   | 0 (0%)      | Metrik Popularitas |
-
-#### 👥 **File 2: rating.csv**
+#### 👥 **Dataset 2: rating.csv**
 Dataset ini berisi interaksi pengguna-anime yang menjadi inti untuk sistem rekomendasi kolaboratif.
 
-| Variabel    | Tipe Data | Deskripsi                                                                 | Rentang Nilai    | Data Hilang | Keterangan |
-|------------|-----------|---------------------------------------------------------------------------|------------------|-------------|------------|
-| `user_id`  | Integer   | ID unik pengguna (acak, tidak dapat diidentifikasi)                      | 1 - 73.516     | 0 (0%)      | Kunci Asing |
-| `anime_id` | Integer   | ID anime yang dirating oleh user (kunci asing ke anime.csv)              | 1 - 34.519     | 0 (0%)      | Kunci Asing |
-| `rating`   | Integer   | Nilai rating yang diberikan user (-1 jika user menonton tapi tidak rating)| -1, 1-10      | 0 (0%)      | Variabel Target |
+<div align="center">
 
----
+| **Variabel** | **Tipe Data** | **Deskripsi Lengkap** | **Rentang Nilai** | **Missing** | **Peran** |
+|:---:|:---:|:---:|:---:|:---:|:---:|
+| `user_id` | Integer | ID unik pengguna (anonymized) | 1 - 73,516 | 0 (0%) | Foreign Key |
+| `anime_id` | Integer | ID anime yang dirating (referensi ke anime.csv) | 1 - 34,519 | 0 (0%) | Foreign Key |
+| `rating` | Integer | Rating yang diberikan user atau -1 jika hanya menonton | -1, 1-10 | 0 (0%) | Target Variable |
+
+</div>
+
+**Detailed Field Analysis:**
+- **user_id**: 73,516 pengguna unik dengan distribusi aktivitas long-tail
+- **anime_id**: Menghubungkan ke anime.csv, coverage 11,200 dari 12,294 anime total
+- **rating**: Nilai -1 (18.9%) = "watched but not rated", 1-10 = actual ratings
+- **Interaction Matrix**: Sparsity 99.08% (typical untuk collaborative filtering)
+
+### 🔗 **Relasi Antar Dataset**
+- **Kunci Penghubung**: `anime_id` menghubungkan kedua dataset
+- **Coverage**: 11,200 anime (91.1%) memiliki data rating
+- **Integritas**: 1,094 anime tanpa rating data (anime baru/kurang populer)
+- **Konsistensi**: ID mapping 100% valid tanpa foreign key violations
 
 ### 🔍 Analisis Kualitas Data
 
@@ -539,9 +599,9 @@ Data preparation ini memastikan kedua sistem rekomendasi memiliki foundation yan
 ---
 
 ## 🤖 Modeling and Result
-### 🎯 **Overview Sistem Rekomendasi Hybrid**
+### 🎯 **Overview Sistem Rekomendasi Dua Pendekatan**
 
-Proyek ini mengimplementasikan **Hybrid Recommendation System** yang menggabungkan dua pendekatan utama untuk mengatasi kelemahan masing-masing metode dan memberikan rekomendasi yang lebih akurat serta beragam.
+Proyek ini mengimplementasikan **Dua Sistem Rekomendasi Independen** yang masing-masing mengatasi aspek berbeda dalam content discovery untuk memberikan rekomendasi anime yang komprehensif:
 
 <div align="center">
 
@@ -645,35 +705,85 @@ Output: Predicted Rating [0,1] → Scale to [1,10]
 
 #### 🎯 **Top-N Recommendation Results**
 
-**Content-Based Filtering Examples:**
+### 🎨 **Content-Based Filtering - Top-10 Recommendations**
+
+#### **Test Case: Rekomendasi untuk anime 'Monster'**
+*Input*: Monster (Psychological/Thriller/Seinen)
 
 <div align="center">
 
-| **Test Case** | **Input Anime** | **Top Recommendation** | **Similarity Score** | **Avg Rating** |
+| **Rank** | **Anime Name** | **Genre** | **Rating** | **Similarity Score** |
 |:---:|:---:|:---:|:---:|:---:|
-| 1 | Gintama (Action/Comedy/Shounen) | Gintama' | 1.000 | 8.64/10 |
-| 2 | Monster (Psychological/Thriller) | Mousou Dairinin | 0.822 | 7.65/10 |
-| 3 | Berserk (Action/Fantasy/Horror) | Berserk (2016) | 1.000 | 7.29/10 |
-| 4 | Initial D (Sports/Cars) | Initial D Fifth Stage | 1.000 | 7.85/10 |
-| 5 | Kill la Kill (Action/Comedy) | Kill la Kill Special | 1.000 | 7.25/10 |
+| 1 | Mousou Dairinin | Drama, Mystery, Police, Psychological, Supernatural | 7.74 | 0.822 |
+| 2 | Higurashi no Naku Koro ni Kaku: Outbreak | Horror, Mystery, Psychological, Thriller | 7.36 | 0.811 |
+| 3 | Death Note | Mystery, Police, Psychological, Supernatural, Thriller | 8.71 | 0.790 |
+| 4 | Death Note Rewrite | Mystery, Police, Psychological, Supernatural, Thriller | 7.84 | 0.790 |
+| 5 | Higurashi no Naku Koro ni | Horror, Mystery, Psychological, Supernatural, Thriller | 8.17 | 0.765 |
+| 6 | Dwaejiui Wang | Drama, Psychological, Seinen, Thriller | 7.03 | 0.754 |
+| 7 | Sanctuary | Action, Drama, Police, Seinen, Thriller | 6.50 | 0.735 |
+| 8 | Paprika | Fantasy, Horror, Mystery, Psychological, Sci-Fi, Thriller | 8.15 | 0.731 |
+| 9 | Another: The Other - Inga | Horror, Mystery, Thriller | 7.50 | 0.701 |
+| 10 | Karakuri Zoushi Ayatsuri Sakon | Horror, Mystery, Thriller | 7.50 | 0.701 |
 
 </div>
 
-**Collaborative Filtering Examples:**
+**Content-Based Results Summary:**
+- **Average Similarity Score**: 0.760 (sangat relevan)
+- **Average Rating**: 7.65/10 (berkualitas tinggi)
+- **Genre Consistency**: 100% (semua memiliki Psychological/Thriller/Mystery)
+- **Quality Rating**: 90% anime rating ≥7.0
+
+---
+
+### 🤝 **Collaborative Filtering - Top-10 Recommendations**
+
+#### **Test Case: Rekomendasi untuk User ID 53698**
+*Profile*: 2,367 ratings, Average: 6.70/10, Favorit: Neon Genesis Evangelion
 
 <div align="center">
 
-| **User ID** | **Profile** | **Top Recommendation** | **Predicted Rating** | **Genre Diversity** |
+| **Rank** | **Anime Name** | **Genre** | **Predicted Rating** | **Official Rating** |
 |:---:|:---:|:---:|:---:|:---:|
-| 42635 | 3,122 ratings, Avg: 6.39/10 | D-Frag! OVA | 6.83/10 | 17 genres |
-| 57620 | 2,561 ratings, Avg: 7.98/10 | Kirarin☆Revolution | 8.69/10 | 19 genres |
-| 59643 | 2,489 ratings, Avg: 7.10/10 | Spiral: Suiri no Kizuna | 6.94/10 | 11 genres |
-| 53698 | 2,367 ratings, Avg: 6.70/10 | Initial D First Stage | 8.47/10 | 19 genres |
-| 45659 | 2,345 ratings, Avg: 7.00/10 | Gake no Ue no Ponyo | 7.24/10 | 16 genres |
+| 1 | Initial D First Stage | Action, Cars, Drama, Seinen, Sports | 8.47 | 8.23 |
+| 2 | Initial D Second Stage | Action, Cars, Drama, Seinen, Sports | 8.47 | 8.12 |
+| 3 | Samurai Champloo | Action, Adventure, Comedy, Historical, Samurai, Shounen | 8.47 | 8.50 |
+| 4 | Dragon Ball | Adventure, Comedy, Fantasy, Martial Arts, Shounen | 8.47 | 8.16 |
+| 5 | Great Teacher Onizuka | Comedy, Drama, School, Shounen, Slice of Life | 8.47 | 8.77 |
+| 6 | InuYasha | Action, Adventure, Comedy, Demons, Fantasy, Magic, Romance, Shounen | 8.47 | 7.89 |
+| 7 | Konjiki no Gash Bell!! | Adventure, Comedy, Magic, Shounen, Supernatural | 8.47 | 7.66 |
+| 8 | Hajime no Ippo | Comedy, Drama, Shounen, Sports | 8.47 | 8.83 |
+| 9 | Hajime no Ippo: Champion Road | Comedy, Shounen, Sports | 8.47 | 8.39 |
+| 10 | Hajime no Ippo: Mashiba vs. Kimura | Comedy, Shounen, Sports | 8.47 | 8.28 |
 
 </div>
 
-**Quality Summary:**
+**Collaborative Results Summary:**
+- **Average Predicted Rating**: 8.47/10 (prediksi tinggi)
+- **Average Official Rating**: 8.28/10 (konsisten dengan prediksi)
+- **Genre Diversity**: 19 genre unik (varied recommendations)
+- **Prediction Quality**: 100% valid range [1-10]
+
+---
+
+### 📊 **Perbandingan Hasil Kedua Sistem**
+
+<div align="center">
+
+| **Metrik Evaluasi** | **Content-Based** | **Collaborative** | **Keterangan** |
+|:---:|:---:|:---:|:---:|
+| 🎯 **Success Rate** | 100% | 100% | Kedua sistem berhasil 100% |
+| 📈 **Average Score** | 0.760 similarity | 7.63/10 rating | Content fokus kemiripan |
+| ⭐ **Quality Rating** | 7.65/10 | 8.28/10 | Collaborative prediksi lebih tinggi |
+| 🎪 **Consistency** | 100% genre match | Variable diversity | Content lebih konsisten |
+| 🔮 **Discovery Type** | Similar content | User preference patterns | Approach berbeda |
+| 🚀 **Use Case** | New anime/users | Existing active users | Complement each other |
+
+</div>
+
+**Kesimpulan Hasil:**
+- **Content-Based**: Excellent untuk rekomendasi berdasarkan karakteristik anime yang disukai
+- **Collaborative**: Superior untuk prediksi rating dan discovery berdasarkan komunitas
+- **Independen but Complementary**: Kedua sistem mengatasi aspek berbeda dalam recommendation
 - **Success Rate**: 100% (5/5 users tested successfully)
 - **Average Predicted Rating**: 7.63/10 dengan konsistensi tinggi
 - **Prediction Quality**: 100% (semua prediksi dalam range valid 1-10)
@@ -801,7 +911,7 @@ Output: Predicted Rating [0,1] → Scale to [1,10]
 
 ### 🏆 **Kesimpulan Evaluasi**
 
-**Sistem Rekomendasi Hybrid yang dikembangkan telah berhasil memenuhi semua kriteria evaluasi:**
+**Sistem Rekomendasi dengan dua pendekatan yang dikembangkan telah berhasil memenuhi semua kriteria evaluasi:**
 
 1. **Content-Based Filtering** menunjukkan performa superior dalam hal konsistensi genre dan explainability
 2. **Collaborative Filtering** unggul dalam akurasi prediksi numerik dan pattern discovery  
